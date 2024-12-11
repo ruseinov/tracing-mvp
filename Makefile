@@ -12,3 +12,6 @@ detailed-prod-trace:
 
 detailed-prod-trace-metrics:
 	TRACING_CONFIG=detailed-spans RUST_LOG=trace cargo run --bin prod --features=enable-metrics
+
+detailed-prod-tree:
+	TRACING_CONFIG=detailed-spans RUST_LOG=trace cargo run --bin prod --features=tracing-tree

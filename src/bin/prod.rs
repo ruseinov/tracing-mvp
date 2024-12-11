@@ -1,7 +1,7 @@
 use std::env;
 use std::thread::sleep;
 use std::time::Duration;
-use tracing::{debug, trace};
+use tracing::{debug, instrument, trace};
 use tracing_subscriber::{EnvFilter, Layer, Registry};
 use tracing_subscriber::fmt::format::FmtSpan;
 use tracing_subscriber::layer::SubscriberExt;
@@ -28,9 +28,10 @@ fn tracing_init() {
     };
 
     let layered = layered.with_filter(EnvFilter::from_default_env());
-
-
     let sub = Registry::default().with(layered);
+
+    #[cfg(feature = "tracing-tree")]
+    let sub = sub.with(tracing_span_tree::span_tree());
 
     #[cfg(feature = "enable-metrics")]
     let sub = sub.with(TimedMetrics);
@@ -42,6 +43,12 @@ fn main() {
     #[cfg(feature = "enable-metrics")]
     tracing_mvp::metrics::recorder::init_print_logger();
     tracing_init();
+    root_method();
+
+}
+
+#[instrument(level = "debug")]
+fn root_method() {
     some_method_to_trace(20);
     some_other_method_to_trace(30);
 }
